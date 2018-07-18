@@ -16,7 +16,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".EditorActivity"></activity>
+        
+        <provider
+            android:authorities="com.thangtruong19.petmanager"
+            android:name=".data.PetProvider"
+            android:exported="false"/>
     </application>
 
 </manifest>
