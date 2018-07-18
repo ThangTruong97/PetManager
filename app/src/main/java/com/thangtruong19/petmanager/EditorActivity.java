@@ -1,5 +1,7 @@
 package com.thangtruong19.petmanager;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +13,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
+
+import com.thangtruong19.petmanager.data.PetContract;
+import com.thangtruong19.petmanager.data.PetDbHelper;
 
 public class EditorActivity extends AppCompatActivity {
 
@@ -66,11 +72,11 @@ public class EditorActivity extends AppCompatActivity {
                 String selection = (String) parent.getItemAtPosition(position);
                 if (!TextUtils.isEmpty(selection)) {
                     if (selection.equals(getString(R.string.gender_male))) {
-                        mGender = 1; // Male
+                        mGender = PetContract.PetEntry.GENDER_MALE; // Male
                     } else if (selection.equals(getString(R.string.gender_female))) {
-                        mGender = 2; // Female
+                        mGender = PetContract.PetEntry.GENDER_FEMALE; // Female
                     } else {
-                        mGender = 0; // Unknown
+                        mGender = PetContract.PetEntry.GENDER_UNKNOWN; // Unknown
                     }
                 }
             }
@@ -97,7 +103,8 @@ public class EditorActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                // Do nothing for now
+                insertPet();
+                finish();
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
@@ -110,5 +117,29 @@ public class EditorActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void insertPet() {
+        String nameString=mNameEditText.getText().toString().trim();
+        String breedString=mBreedEditText.getText().toString().trim();
+        String weightString=mWeightEditText.getText().toString().trim();
+        int weight=Integer.parseInt(weightString);
+
+        PetDbHelper mDbHelper=new PetDbHelper(this);
+        SQLiteDatabase db=mDbHelper.getWritableDatabase();
+        // Create a new map of values, where column names are the keys
+        ContentValues values=new ContentValues();
+        values.put(PetContract.PetEntry.COLUMN_NAME,nameString);
+        values.put(PetContract.PetEntry.COLUMN_BREED,breedString);
+        values.put(PetContract.PetEntry.COLUMN_GENDER,mGender);
+        values.put(PetContract.PetEntry.COLUMN_WEIGHT,weight);
+        // Insert the new row
+        long newRowId=db.insert(PetContract.PetEntry.TABLE_NAME,null,values);
+
+        if(newRowId==-1){
+            Toast.makeText(this,"Error occured when adding pet information ",Toast.LENGTH_LONG).show();
+        }else{
+            Toast.makeText(this,"Pet saved with row id: "+newRowId,Toast.LENGTH_LONG).show();
+        }
     }
 }
