@@ -3,7 +3,7 @@ package com.thangtruong19.petmanager;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.support.design.widget.FloatingActionButton;
@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displayDatabaseInfo() {
-        
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
         String[] projection={
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
                 PetContract.PetEntry.COLUMN_BREED
         };
 
-        Cursor cursor= getContentResolver().query(PetContract.PetEntry.CONTENT_URI,projection,null,null,null);
+        Cursor cursor=getContentResolver().query(PetContract.PetEntry.CONTENT_URI,projection,null,null,null);
         try {
             // Display the number of rows in the Cursor (which reflects the number of rows in the
             // pets table in the database).
@@ -65,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
 
             while(cursor.moveToNext()){
                 int currentID=cursor.getInt(ID_COLUMN_INDEX);
-                String currentName=cursor.getString(NAME_COLUMN_INDEX);
-                displayView.append("\n"+currentID+" - "+currentName);
+                String currenrName=cursor.getString(NAME_COLUMN_INDEX);
+                displayView.append("\n"+currentID+" - "+currenrName);
             }
         } finally {
             // Always close the cursor when you're done reading from it. This releases all its
@@ -76,15 +75,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void insertPet(){
-        SQLiteDatabase db=mDbHelper.getWritableDatabase();
-        // Create a new map of values, where column names are the keys
+
         ContentValues values=new ContentValues();
         values.put(PetContract.PetEntry.COLUMN_NAME,"Toto");
         values.put(PetContract.PetEntry.COLUMN_BREED,"Terrier");
         values.put(PetContract.PetEntry.COLUMN_GENDER,1);
         values.put(PetContract.PetEntry.COLUMN_WEIGHT,7);
         // Insert the new row
-        long newRowId=db.insert(PetContract.PetEntry.TABLE_NAME,null,values);
+        Uri newRowUri=getContentResolver().insert(PetContract.PetEntry.CONTENT_URI,values);
     }
 
     @Override

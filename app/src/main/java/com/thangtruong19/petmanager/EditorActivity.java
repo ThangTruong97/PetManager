@@ -1,7 +1,7 @@
 package com.thangtruong19.petmanager;
 
 import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -16,7 +16,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.thangtruong19.petmanager.data.PetContract;
-import com.thangtruong19.petmanager.data.PetDbHelper;
 
 public class EditorActivity extends AppCompatActivity {
 
@@ -125,8 +124,6 @@ public class EditorActivity extends AppCompatActivity {
         String weightString=mWeightEditText.getText().toString().trim();
         int weight=Integer.parseInt(weightString);
 
-        PetDbHelper mDbHelper=new PetDbHelper(this);
-        SQLiteDatabase db=mDbHelper.getWritableDatabase();
         // Create a new map of values, where column names are the keys
         ContentValues values=new ContentValues();
         values.put(PetContract.PetEntry.COLUMN_NAME,nameString);
@@ -134,9 +131,9 @@ public class EditorActivity extends AppCompatActivity {
         values.put(PetContract.PetEntry.COLUMN_GENDER,mGender);
         values.put(PetContract.PetEntry.COLUMN_WEIGHT,weight);
         // Insert the new row
-        long newRowId=db.insert(PetContract.PetEntry.TABLE_NAME,null,values);
+        Uri newRowId=getContentResolver().insert(PetContract.PetEntry.CONTENT_URI,values);
 
-        if(newRowId==-1){
+        if(newRowId==null){
             Toast.makeText(this,"Error occured when adding pet information ",Toast.LENGTH_LONG).show();
         }else{
             Toast.makeText(this,"Pet saved with row id: "+newRowId,Toast.LENGTH_LONG).show();
