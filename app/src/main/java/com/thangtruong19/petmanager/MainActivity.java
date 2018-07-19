@@ -43,13 +43,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void displayDatabaseInfo() {
-        // To access our database, we instantiate our subclass of SQLiteOpenHelper
-        // and pass the context, which is the current activity.
-        PetDbHelper mDbHelper = new PetDbHelper(this);
-
-        // Create and/or open a database to read from it
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
+        
         // Define a projection that specifies which columns from the database
         // you will actually use after this query.
         String[] projection={
@@ -57,19 +51,8 @@ public class MainActivity extends AppCompatActivity {
                 PetContract.PetEntry.COLUMN_NAME,
                 PetContract.PetEntry.COLUMN_BREED
         };
-        // Filter results
-        String selection=BaseColumns._ID + " =?";
-        String[] selectionArgs={"2"};
 
-        Cursor cursor=db.query(
-                PetContract.PetEntry.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null
-        );
+        Cursor cursor= getContentResolver().query(PetContract.PetEntry.CONTENT_URI,projection,null,null,null);
         try {
             // Display the number of rows in the Cursor (which reflects the number of rows in the
             // pets table in the database).
@@ -82,8 +65,8 @@ public class MainActivity extends AppCompatActivity {
 
             while(cursor.moveToNext()){
                 int currentID=cursor.getInt(ID_COLUMN_INDEX);
-                String currenrName=cursor.getString(NAME_COLUMN_INDEX);
-                displayView.append("\n"+currentID+" - "+currenrName);
+                String currentName=cursor.getString(NAME_COLUMN_INDEX);
+                displayView.append("\n"+currentID+" - "+currentName);
             }
         } finally {
             // Always close the cursor when you're done reading from it. This releases all its
