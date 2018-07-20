@@ -11,7 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.ListView;
 
 import com.thangtruong19.petmanager.data.PetContract;
 import com.thangtruong19.petmanager.data.PetDbHelper;
@@ -52,26 +52,15 @@ public class MainActivity extends AppCompatActivity {
         };
 
         Cursor cursor=getContentResolver().query(PetContract.PetEntry.CONTENT_URI,projection,null,null,null);
-        try {
-            // Display the number of rows in the Cursor (which reflects the number of rows in the
-            // pets table in the database).
-            TextView displayView = (TextView) findViewById(R.id.text_view_pet);
-            displayView.setText("Number of rows in pets database table: " + cursor.getCount()+"\n\n");
-            displayView.append(PetContract.PetEntry._ID + " - "+ PetContract.PetEntry.COLUMN_NAME);
+        // Display the number of rows in the Cursor (which reflects the number of rows in the
+        // pets table in the database).
+        ListView listView=findViewById(R.id.list_view_pet);
 
-            int ID_COLUMN_INDEX=cursor.getColumnIndex(PetContract.PetEntry._ID);
-            int NAME_COLUMN_INDEX=cursor.getColumnIndex(PetContract.PetEntry.COLUMN_NAME);
+        View emptyView = findViewById(R.id.empty_view);
+        listView.setEmptyView(emptyView);
 
-            while(cursor.moveToNext()){
-                int currentID=cursor.getInt(ID_COLUMN_INDEX);
-                String currenrName=cursor.getString(NAME_COLUMN_INDEX);
-                displayView.append("\n"+currentID+" - "+currenrName);
-            }
-        } finally {
-            // Always close the cursor when you're done reading from it. This releases all its
-            // resources and makes it invalid.
-            cursor.close();
-        }
+        PetCursorAdapter adapter=new PetCursorAdapter(this,cursor);
+        listView.setAdapter(adapter);
     }
 
     private void insertPet(){
