@@ -1,7 +1,9 @@
 package com.thangtruong19.petmanager;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,13 +14,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
-
+import android.content.CursorLoader;
 import com.thangtruong19.petmanager.data.PetContract;
 import com.thangtruong19.petmanager.data.PetDbHelper;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 
     PetDbHelper mDbHelper = new PetDbHelper(this);
+    private static final int URL_LOADER = 0;
+    PetCursorAdapter mCursorAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,35 +37,21 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        displayDatabaseInfo();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        displayDatabaseInfo();
-    }
-
-    private void displayDatabaseInfo() {
-        // Define a projection that specifies which columns from the database
-        // you will actually use after this query.
-        String[] projection={
-                BaseColumns._ID,
-                PetContract.PetEntry.COLUMN_NAME,
-                PetContract.PetEntry.COLUMN_BREED
-        };
-
-        Cursor cursor=getContentResolver().query(PetContract.PetEntry.CONTENT_URI,projection,null,null,null);
-        // Display the number of rows in the Cursor (which reflects the number of rows in the
-        // pets table in the database).
         ListView listView=findViewById(R.id.list_view_pet);
 
         View emptyView = findViewById(R.id.empty_view);
         listView.setEmptyView(emptyView);
 
-        PetCursorAdapter adapter=new PetCursorAdapter(this,cursor);
-        listView.setAdapter(adapter);
+         mCursorAdapter=new PetCursorAdapter(this,null);
+        listView.setAdapter(mCursorAdapter);
+
+        getLoaderManager().initLoader(URL_LOADER, null, this);
+
     }
+
+
+
+
 
     private void insertPet(){
 
@@ -89,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
             // Respond to a click on the "Insert dummy data" menu option
             case R.id.action_insert_dummy_data:
                 insertPet();
-                displayDatabaseInfo();
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
@@ -98,5 +87,33 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String[] projection={
+                BaseColumns._ID,
+                PetContract.PetEntry.COLUMN_NAME,
+                PetContract.PetEntry.COLUMN_BREED
+        };
+
+        return new CursorLoader(
+                this,   // Parent activity context
+                PetContract.PetEntry.CONTENT_URI,// Table to query
+                projection,     // Projection to return
+                null,            // No selection clause
+                null,            // No selection arguments
+                null             // Default sort order
+        );
     }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        mCursorAdapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mCursorAdapter.swapCursor(null);
+    }
+}
 
