@@ -52,4 +52,10 @@
 
     <!-- Subtitle text for the empty view that prompts the user to add a pet [CHAR LIMIT=50] -->
     <string name="empty_view_subtitle_text">Get started by adding a pet</string>
+
+    <!-- Editor title when adding a new pet -->
+    <string name="add_new_pet">Add a pet</string>
+
+    <!-- Editor title when updating an existing pet -->
+    <string name="modify_an_existing_pet">Edit pet</string>
 </resources>
